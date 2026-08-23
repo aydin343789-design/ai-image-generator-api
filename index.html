@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 تصویر‌ساز هوش مصنوعی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .slider-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .slider-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .value-display {
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-generate:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-clear {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .status.loading {
+            background: #e3f2fd;
+            color: #1976d2;
+            display: block;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+            display: block;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #d32f2f;
+            display: block;
+        }
+
+        .image-preview {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-height: 500px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            margin-top: 15px;
+            background: #4caf50;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .history {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
+
+        .history h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .history-item {
+            position: relative;
+            cursor: pointer;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f5f5f5;
+            aspect-ratio: 1;
+        }
+
+        .history-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .history-item:hover img {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .slider-group {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 تصویر‌ساز هوش مصنوعی</h1>
+
+        <form id="generateForm">
+            <div class="form-group">
+                <label for="prompt">📝 توصیف تصویری که می‌خواهی:</label>
+                <textarea 
+                    id="prompt" 
+                    placeholder="مثال: یک گربه قهوه‌ای روی صندلی آبی در خیابان پر روز..."
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>⚙️ تنظیمات</label>
+                <div class="slider-group">
+                    <div class="slider-item">
+                        <label>مراحل (Steps): <span class="value-display" id="stepsValue">50</span></label>
+                        <input 
+                            type="range" 
+                            id="steps" 
+                            min="20" 
+                            max="100" 
+                            value="50"
+                            step="10"
+                        >
+                    </div>
+
+                    <div class="slider-item">
+                        <label>کیفیت (Guidance): <span class="value-display" id="guidanceValue">7.5</span></label>
+                        <input 
+                            type="range" 
+                            id="guidance" 
+                            min="1" 
+                            max="20" 
+                            value="7.5"
+                            step="0.5"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-generate" id="generateBtn">🚀 تولید تصویر</button>
+                <button type="reset" class="btn-clear">🔄 پاک کردن</button>
+            </div>
+        </form>
+
+        <div class="status" id="status"></div>
+        <div class="image-preview" id="imagePreview"></div>
+
+        <div class="history" id="historySection" style="display: none;">
+            <h3>📸 تاریخچه تصاویر</h3>
+            <div class="history-grid" id="historyGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('generateForm');
+        const prompt = document.getElementById('prompt');
+        const steps = document.getElementById('steps');
+        const guidance = document.getElementById('guidance');
+        const status = document.getElementById('status');
+        const generateBtn = document.getElementById('generateBtn');
+        const imagePreview = document.getElementById('imagePreview');
+        const stepsValue = document.getElementById('stepsValue');
+        const guidanceValue = document.getElementById('guidanceValue');
+
+        // به‌روزرسانی نمایش مقادیر
+        steps.addEventListener('input', (e) => {
+            stepsValue.textContent = e.target.value;
+        });
+
+        guidance.addEventListener('input', (e) => {
+            guidanceValue.textContent = e.target.value;
+        });
+
+        // ارسال درخواست
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const promptText = prompt.value.trim();
+            if (!promptText) {
+                showStatus('لطفاً توصیف را وارد کنید!', 'error');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            showStatus('⏳ درحال تولید تصویر... این کار ممکن است ۲-۵ دقیقه طول بکشد...', 'loading');
+            imagePreview.innerHTML = '<div class="spinner"></div>';
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: promptText,
+                        steps: parseInt(steps.value),
+                        guidance_scale: parseFloat(guidance.value),
+                        height: 512,
+                        width: 512
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showStatus(`✅ تصویر با موفقیت تولید شد!\n"${promptText}"`, 'success');
+                    
+                    // نمایش تصویر
+                    imagePreview.innerHTML = `
+                        <img src="${data.image_url}" alt="Generated Image">
+                        <a href="${data.image_url}" download class="download-btn">⬇️ دانلود</a>
+                    `;
+
+                    // بروزرسانی تاریخچه
+                    loadHistory();
+                } else {
+                    showStatus(`❌ خطا: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ خطای شبکه: ${error.message}`, 'error');
+            } finally {
+                generateBtn.disabled = false;
+            }
+        });
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/images');
+                const data = await response.json();
+
+                if (data.images && data.images.length > 0) {
+                    const historyGrid = document.getElementById('historyGrid');
+                    const historySection = document.getElementById('historySection');
+                    
+                    historyGrid.innerHTML = data.images.slice(0, 12).map(url => `
+                        <div class="history-item" onclick="viewImage('${url}')">
+                            <img src="${url}" alt="History">
+                        </div>
+                    `).join('');
+
+                    historySection.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('خطا در بارگذاری تاریخچه:', error);
+            }
+        }
+
+        function viewImage(url) {
+            imagePreview.innerHTML = `
+                <img src="${url}" alt="Generated Image">
+                <a href="${url}" download class="download-btn">⬇️ دانلود</a>
+            `;
+        }
+
+        // بارگذاری تاریخچه هنگام بارگذاری صفحه
+        window.addEventListener('load', loadHistory);
+    </script>
+</body>
+</html>
